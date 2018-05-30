@@ -1,42 +1,9 @@
 /* Contacts Collection */
-const contacts = {
-    'Sunday James': {
-        firstName: 'Sunday',
-        lastName: 'James',
-        phones: ['09000000980', '0809999542', '07033007634']
-    },
-    'James Kemi': {
-        firstName: 'James',
-        lastName: 'Kemi',
-        email: 'jae@yahoo.com',
-        phones: ['09033563201', '08042331174', '09033117943']
-    },
-    'Fashade Tunde': {
-        firstName: 'Fashade',
-        lastName: 'Tunde',
-        email: 'faade@yahoo.com',
-        phones: ['07055783218']
-    },
-    'Fadekemi Tunde': {
-        firstName: 'Fadekemi',
-        lastName: 'Tunde',
-        email: 'faade@yahoo.com',
-        phones: ['07051174008']
-    },
-    'Folake Bami': {
-        firstName: 'Folake',
-        lastName: 'Bami',
-        email: 'faade@yahoo.com',
-        phones: ['09054587216']
-    },
-    'John Femi': {
-        firstName: 'John',
-        lastName: 'Femi',
-        email: 'faade@yahoo.com',
-        phones: ['09052167943']
-    },
-};
+if (!localStorage.contacts) {
+    localStorage.contacts = JSON.stringify({});
+}
 
+const contacts = JSON.parse(localStorage.contacts);
 
 /* Contact Class */
 class Contact {
@@ -96,8 +63,11 @@ function getNewContact({firstName = '', lastName = '', email = '', phones = ['']
     phoneNumbers.appendChild(phoneNumberLabel);
 
     /* Puts each member of phones into an Input Element */
-    phones.forEach(phoneNumber => {
+    phones.forEach( (phoneNumber, index) => {
         const newPhoneInput = document.createElement('input');
+        if (index === 0) {
+            newPhoneInput.setAttribute('class', 'required');
+        }
         newPhoneInput.setAttribute('type', 'number');
         newPhoneInput.setAttribute('name', 'phone');
         newPhoneInput.setAttribute('placeholder', 'Phone Number');
@@ -146,6 +116,7 @@ function saveNewContact(event) {
         if (!doesContactNameExit || confirm('This will replace another contact with the same names')) {
             const newContact = new Contact([firstName, lastName, email, phones]); /* Creates/replaces contact */
             contacts[newContact] = newContact;
+            localStorage.contacts = JSON.stringify(contacts);
 
             /* Displays the new contact details */
             displayContacts(Object.keys(contacts).sort(), newContact.toString());
@@ -168,7 +139,7 @@ function validateContactInputs([firstName, lastName, email, phones]) {
     
     if (!noneEmptyPhones.length) return 'Please supply at least one valid phone number';
 
-    if (!noneEmptyPhones.every(phone => phone.match(/^\+?\d{9,16}/))) return 'At least one phone number is invalid';
+    if (!noneEmptyPhones.every(phone => phone.match(/^\+?\d{9,16}/))) return 'Phone number(s) is invalid';
 }
 
 
@@ -224,11 +195,15 @@ function showContactDetails(event) {
 /* Shows the details of the highlighted contact */
 function showHighligtedContactDetails() {
     const contactDetailList = document.querySelector('#contact-detail ul');
+
+    newContactSection.style.display = 'none';
+
     contactDetailList.innerHTML = ''; /* Clears away the details of an intial contact */
 
     /* If no contact is highlighted, hides the edit and delete bottons */
     if (!document.querySelector('#highlight')) {
         document.querySelector('#alter-btns').style.display = 'none';
+        contactDetailSection.style.display = 'none';
         return;
     }
 
@@ -254,7 +229,6 @@ function showHighligtedContactDetails() {
     
     document.querySelector('#alter-btns').style.display = '';
 
-    newContactSection.style.display = 'none';
     contactDetailSection.style.display = '';
 }
 
@@ -293,6 +267,7 @@ function editContact(event) {
 function deleteContact(event) {
     if (confirm(`You are about to delete a contact, This can't be undone`)) {
         delete contacts[document.querySelector('#highlight').innerText];
+        localStorage.contacts = JSON.stringify(contacts);
 
         const searchInput = document.querySelector('#search').value;
         searchInput ? searchNames() : displayContacts(Object.keys(contacts).sort());
