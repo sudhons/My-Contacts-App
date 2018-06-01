@@ -1,6 +1,19 @@
 /* Contacts Collection */
 if (!localStorage.contacts) {
-    localStorage.contacts = JSON.stringify({});
+    const dummyContacts = {
+        'James Alo': {
+            firstName: 'James',
+            lastName: 'Alo',
+            email: 'jamesalo@gmail.com',
+            phones: ['09000997654', '+43707770065']
+        },
+        'Fresh Sun': {
+            firstName: 'Fresh',
+            lastName: 'Sun',
+            phones: ['4590997654']
+        }
+    }
+    localStorage.contacts = JSON.stringify(dummyContacts);
 }
 
 const contacts = JSON.parse(localStorage.contacts);
@@ -146,7 +159,9 @@ function validateContactInputs([firstName, lastName, email, phones]) {
 /* Displays contacts and hightlights the contact-name whose details is to be displayed */
 function displayContacts(listOfContacts, highlightContactName = listOfContacts[0]) {
 
-    contactsList.innerHTML = ''; /* Removes contacts already in display */
+    contactsList.innerHTML = listOfContacts.length
+        ? ''
+        : `<li>You contact list is empty!</li><li>Click 'Add New Contact' above to add contacts</li>`;
 
     /* *
      * Creates li for each contact name, groups the li's according to the first
